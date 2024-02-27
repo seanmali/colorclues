@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8"/>
+    <title>Color Clues</title>
+    {% load static %}
+    {% load bootstrap5 %}
+    {% bootstrap_css %}
+    {% bootstrap_javascript %}
+    <link rel="stylesheet" href="{% static 'css/room.css' %}">
+</head>
+<body>
+    <div class="top-bar">
+        <div id="my-name"></div>
+        <div id="my-color"></div>
+        <div id="my-score">0</div>
+        <div id="my-turn">Pending</div>
+    </div>
+    <div class="play-area-container">
+        <div class="player-info-container">
+            <div class="player-info-title">Players:</div>
+        </div>
+        <div id="board">
+            <div id="color-grid"></div>
+
+            <div class="clue-input-container" style="display:none;">
+                <input id="clue-message-input" class="form-group" type="text">
+                <input id="clue-message-submit" class="btn btn-primary" placeholder="color clue" type="button" value="Send Clue">
+            </div>
+            <div class="buttons-container">
+                <button id="drawCardButton" class="btn btn-info" type="button" style="display:none;">Draw a card</button>
+                <button id="confirmGuessButton" class="btn btn-primary" type="button" style="display:none;">Confirm Guess</button>
+                <button id="start-game-button" class="btn btn-primary" type="button" style="display:block;">Start Game</button>
+                <button id="next-turn-button" class="btn btn-primary" style="display: none;">Next Turn</button>
+            </div>
+        </div>
+
+        <div class="game-log-container">
+            <label id="clue-log-label" for="clue-log">Clue Log:</label>
+            <textarea id="clue-log" class="form-group" readonly></textarea>
+        </div>
+
+        <div id="colorChoice" style="display:none;"></div>
+    </div>
+
+    <!--player name modal--> 
+    <div id="playerInputModal" class="modal">
+        <div class="modal-content">
+        <label for="playerName">Player Name:</label>
+        <input type="text" id="playerName" maxlength="12" required><br>
+        <label for="playerColor">Player Color:</label>
+        <input type="color" id="playerColor" value="#ff0000" required><br>
+        <button id="submitPlayerInfo">Submit</button>
+        </div>
+    </div>
+
+    <!--card modal--> 
+    <div id="colorOptionsModal" class="modal">
+        <div id="colorOptionsModalContent" class="modal-content">
+          <h3>Color Options</h3>
+          <h6>Pick a color:</h6>
+          <div id="colorOptionsContainer"></div>
+        </div>
+    </div>
+  
+    <!--scripts--> 
+    {{ room_name|json_script:"room-name" }}
+    <script src="{% static 'js/room.js' %}"></script>
+    <script src="{% static 'js/board.js' %}"></script>
+    <script src="{% static 'js/card.js' %}"></script>
+</body>
+</html>
