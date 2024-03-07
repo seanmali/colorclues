@@ -17,7 +17,6 @@ gameSocket.onopen = function (e) {
 gameSocket.onmessage = function (e) {
     const data = JSON.parse(e.data);
     const messageType = data['type'];
-    let picked_color;
 
     if (messageType === 'player_list') {
         // Receive player list from consumer and populate global list

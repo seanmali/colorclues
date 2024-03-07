@@ -18,7 +18,6 @@ class GameConsumer(AsyncWebsocketConsumer):
         
         await self.channel_layer.group_add(self.room_name, self.channel_name)
 
-
     async def disconnect(self, close_code):
         # Remove player from the list when disconnecting
         if self.channel_name in GameConsumer.players:
@@ -27,7 +26,12 @@ class GameConsumer(AsyncWebsocketConsumer):
             # Broadcast updated player list
             await self.channel_layer.group_send(
                 self.room_group_name,
-                {"type": "player_list", "players": list(GameConsumer.players.values())}
+                {
+                    "type": "player_list", 
+                    "players": list(filter(
+                        lambda x: x.get("room") == self.room_name, GameConsumer.players.values()
+                    ))
+                }
             )
 
         # Leave room group
@@ -59,14 +63,20 @@ class GameConsumer(AsyncWebsocketConsumer):
                 "name": name, 
                 "color": color, 
                 "points": points,  
-                "guesses": guesses
+                "guesses": guesses,
+                "room": self.room_name,
             }
             # get the channel name - player window name
             text_data_json["channel_name"] = self.channel_name
             # send the new player list to the group
             await self.channel_layer.group_send(
                 self.room_group_name,
-                {"type": "player_list", "players": list(GameConsumer.players.values())}
+                {
+                    "type": "player_list", 
+                    "players": list(filter(
+                        lambda x: x.get("room") == self.room_name, GameConsumer.players.values()
+                    ))
+                }
             )
         elif message_type == "get_player":
             player = GameConsumer.players[self.channel_name]
@@ -87,7 +97,12 @@ class GameConsumer(AsyncWebsocketConsumer):
                     plyr['guesses'] = guesses
             await self.channel_layer.group_send(
                 self.room_group_name,
-                {"type": "update_player", "players": list(GameConsumer.players.values())}
+                {
+                    "type": "update_player", 
+                    "players": list(filter(
+                        lambda x: x.get("room") == self.room_name, GameConsumer.players.values()
+                    ))
+                }
             )
         elif message_type == "player_turn":
             # send the current player's turn
