@@ -1,25 +1,25 @@
+body {
+    background-color: lightcyan;
+}
+
 button, .btn, .btn:focus {
     background-color: #55B359;
-    border: none;
-    color: #E5FCF5;
+    border: 2px solid darkgreen;
+    color: black;
     border-radius: 5px;
     margin: 12px;
+    font-weight: 600;
 }
 
 button:hover, .btn:hover {
     background-color: #B3DEC1;
+    border: 2px solid darkgreen;
     color: #2E3038;
 }
 
 button:disabled, .btn:disabled {
     background-color: #B3DEC1;
     color: #2E3038;
-}
-
-.center-button {
-    position: static;
-    display: block;
-    margin: 0 auto;
 }
 
 /* top bar */
@@ -45,6 +45,12 @@ button:disabled, .btn:disabled {
     height: 35px;
     border: 1px solid gray;
     border-radius: 5px;
+}
+
+.buttons-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 /* play area */
@@ -130,9 +136,6 @@ button:disabled, .btn:disabled {
 }
 
 .color-col, .grid-col {
-    display: flex;
-    justify-content: center;
-    align-items: center;
     height: 22px;
     width: 22px;
     margin: 2px;
@@ -150,6 +153,13 @@ button:disabled, .btn:disabled {
     /* Spacing between color grid and clue input */
     align-items: center;
     margin: 0 auto;
+}
+
+/* player updates */
+#player-updates-label {
+    text-align: center;
+    font-size: 18px;
+    font-weight: 700;
 }
 
 /* game log */
@@ -196,7 +206,6 @@ button:disabled, .btn:disabled {
 /* player info modal */
 .modal {
     display: none;
-    /* Hide modal by default */
     position: fixed;
     z-index: 1;
     left: 0;
@@ -204,7 +213,6 @@ button:disabled, .btn:disabled {
     width: 100%;
     height: 100%;
     background-color: rgba(0, 0, 0, 0.5);
-    /* Semi-transparent background */
 }
 
 .modal-content {
@@ -259,6 +267,25 @@ button:disabled, .btn:disabled {
     color: white
 }
 
+/* End of Round Modal */
+#endRoundModal {
+    text-align: center;
+}
+
+#endOfRoundColor {
+    height: 40px;
+    width: 40px;
+    border: 1px solid gray;
+    border-radius: 5px;
+    justify-content: center;
+    margin: auto auto;
+}
+
+/* More Players Modal */
+#morePlayersModalContent {
+    text-align: center;
+}
+
 #colorChoice {
     height: 40px;
     width: 40px;
@@ -272,8 +299,8 @@ button:disabled, .btn:disabled {
 }
 
 .guess-color-square {
-    width: 9px;
-    height: 9px;
+    width: 8px;
+    height: 8px;
     border: 1px solid gray;
     border-radius: 2px;
     margin: 1px;
@@ -308,9 +335,6 @@ button:disabled, .btn:disabled {
     }
 
     .color-col, .grid-col {
-        display: flex;
-        justify-content: center;
-        align-items: center;
         height: 16px;
         width: 16px;
         margin: 2px;

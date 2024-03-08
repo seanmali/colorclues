@@ -1,0 +1,41 @@
+body {
+    background-color: lightcyan;
+}
+
+.lobby-container {
+    margin: 80px auto;
+    text-align: center;
+    background-color: lightblue;
+    width: fit-content;
+    border-radius: 5px;
+    padding: 15px;
+    border: 2px solid lightgray;
+}
+
+.colorCluesTitle {
+    background-image: linear-gradient(to left, violet, indigo, blue, green, yellow, orange, red);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    width: fit-content;
+    margin: auto auto;
+  }
+
+.gameRoomLabel {
+    font-weight: 700;
+    font-size: 20px;
+}
+
+#room-name-submit {
+    background-color: #55B359;
+    border: 2px solid darkgreen;
+    color: black;
+    border-radius: 5px;
+    margin: 12px;
+    font-weight: 600;
+}
+
+#room-name-submit:hover {
+    background-color: #B3DEC1;
+    border: 2px solid darkgreen;
+    color: #2E3038;
+}

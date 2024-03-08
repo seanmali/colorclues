@@ -17,7 +17,6 @@ gameSocket.onopen = function (e) {
 gameSocket.onmessage = function (e) {
     const data = JSON.parse(e.data);
     const messageType = data['type'];
-    let picked_color;
 
     if (messageType === 'player_list') {
         // Receive player list from consumer and populate global list
@@ -110,86 +109,57 @@ gameSocket.onmessage = function (e) {
         }
 
         if (last_guess) {
+            let playerPoints = calculatePoints(players, picked_color);
+            let pointsLabelInEndOfRoundModal = document.getElementById('endOfRoundPointsReceived');
+            let cur_received_points = playerPoints[cur_player.id]['points'];
+            pointsLabelInEndOfRoundModal.textContent = "You have received " + cur_received_points + " points.";
+            let colorInEndOfRoundModal = document.getElementById("endOfRoundColor");
+            
+            colorInEndOfRoundModal.style.backgroundColor = picked_color['color'];
+            
+            let endOfRoundModal = document.getElementById('endRoundModal');
+            endOfRoundModal.style.display='block';
+            // Show end modal:
             setTimeout(function () {
                 // We are updating the player UI so clear it for now
                 clearPlayerUI();
-                let clue_giver_points = 0;
-                // Calculate and distribute points for the guessers
-                for (let player of Object.values(players)) {
-                    let id = player.id;
-                    let name = player.name;
-                    let color = player.color;
-                    let points = player.points;
-                    let guesses = player.guesses;
-                    let new_points = 0;
-                    for (let guess of Object.values(player.guesses)) {
-                        let received_points = getPoints(guess.col, guess.row, picked_color);
-                        new_points += received_points;
-                        if (received_points > 0) {
-                            clue_giver_points += 1;
-                        }
-                    }
-                    // Send the updated guesser's points to the consumer
-                    // Clear guesser's guesses
-                    if (guesses.length > 0) {
-                        removeGuessSquare(id, 1);
-                        removeGuessSquare(id, 2);
-                        new_points += points;
-                        gameSocket.send(JSON.stringify(
-                            {
-                                'type': 'update_player',
-                                'id': id,
-                                'name': name,
-                                'color': color,
-                                'points': new_points,
-                                'guesses': [],
-                            }
-                        ));
-                        if (cur_player['id'] === id) {
-                            updateHeader(
-                                {
-                                    'name': name,
-                                    'color': color,
-                                    'points': new_points,
-                                }
-                            );
-                        }
-                    } else {
-                        clue_giver_id = id;
-                    }
+                clearGuessSquares();
+                endOfRoundModal.style.display='none';
 
-                }
                 // Update the points for the clue giver
                 for (let player of Object.values(players)) {
                     let id = player.id;
                     let name = player.name;
                     let color = player.color;
                     let points = player.points;
-                    if (id === clue_giver_id) {
-                        clue_giver_points += points;
-                        gameSocket.send(JSON.stringify(
+                    let new_points = points += playerPoints[id]['points'];
+
+                    gameSocket.send(JSON.stringify(
+                        {
+                            'type': 'update_player',
+                            'id': id,
+                            'name': name,
+                            'color': color,
+                            'points': new_points,
+                            'guesses': [],
+                        }
+                    ));
+                    if (cur_player['id'] === id) {
+                        updateHeader(
                             {
-                                'type': 'update_player',
-                                'id': id,
                                 'name': name,
                                 'color': color,
-                                'points': clue_giver_points,
-                                'guesses': [],
+                                'points': new_points,
                             }
-                        ));
-                        if (cur_player['id'] === id) {
-                            updateHeader(
-                                {
-                                    'name': name,
-                                    'color': color,
-                                    'points': clue_giver_points,
-                                }
-                            );
-                        }
+                        );
                     }
+
                 }
                 if (cur_player['id'] === clue_giver_id) {
                     document.getElementById('next-turn-button').style.display = 'block';
+                } else {
+                    document.getElementById('player-updates-label').style.display = 'block';
+                    document.getElementById('player-updates-label').textContent = 'Waiting for next turn...';
                 }
             }, 3000);
             if (cur_player['id'] === clue_giver_id) {
@@ -203,6 +173,9 @@ gameSocket.onmessage = function (e) {
             if (cur_player['id'] === clue_giver_id) {
                 document.getElementById('clue-message-input').disabled = false;
                 document.getElementById('clue-message-submit').disabled = false;
+            } else {
+                document.getElementById('player-updates-label').style.display = 'block';
+                document.getElementById('player-updates-label').textContent = 'Waiting for a clue...';
             }
         }
     } else if (messageType === 'guess_submission') {
@@ -213,12 +186,15 @@ gameSocket.onmessage = function (e) {
 };
 
 function updateClueGiverElements() {
+    document.getElementById('player-updates-label').style.display = 'none';
     document.getElementById('my-turn').textContent = "Clue Giver";
     // Show clue giver utilities
     document.getElementById('drawCardButton').style.display = 'block';
 }
 
 function updateGuesserElements() {
+    document.getElementById('player-updates-label').style.display = 'block';
+    document.getElementById('player-updates-label').textContent = 'Waiting for a clue...';
     document.getElementById('my-turn').textContent = "Guesser";
     // Hide clue giver utilities
     document.getElementById('next-turn-button').style.display = 'none';
@@ -366,7 +342,16 @@ function updateChat(message) {
 document.querySelector('#start-game-button').addEventListener('click', startGame);
 
 function startGame() {
-    nextTurn();
+    if (player_list.lenght > 2) {
+        nextTurn();
+    } else {
+        let morePlayersModal = document.getElementById('morePlayersModal');
+        morePlayersModal.style.display = "block";
+        setTimeout(function () {
+            morePlayersModal.style.display = "none";
+        }, 3000);
+    }
+    
 }
 
 document.querySelector('#next-turn-button').addEventListener('click', nextTurn);
@@ -406,6 +391,7 @@ function getIndexOfPlayer(list, playerId) {
 /* COLOR GUESSING */
 
 function guessColor(event) {
+    document.getElementById('player-updates-label').style.display = 'none';
     document.getElementById('confirmGuessButton').style.display = 'block';
 
     guess_row = event.target.dataset.row;
@@ -436,6 +422,7 @@ function confirmGuess() {
 }
 
 function allowGuessing() {
+    document.getElementById('player-updates-label').textContent = 'Click a color to make a guess';
     document.getElementById('confirmGuessButton').disabled = false;
     const squares = document.querySelectorAll('.color-col');
     // Allow click and hover listeners
@@ -519,6 +506,34 @@ function getPoints(guessedXCoord, guessedYCoord, picked_color) {
     }
     // Coordinates are more than 2 squares apart
     return 0;
+}
+
+function calculatePoints(players, picked_color) {
+    let playerPoints = {};
+    let clueGiverPoints = 0;
+    let clueGiver = null;
+
+    for (let player in Object.values(players)) {
+        let playerId = Object.values(players)[player].id;
+        let guesses = Object.values(players)[player].guesses;
+        let points = 0;
+        if (guesses.length > 0) {
+            for (let guess of guesses) {
+                let receivedPoints = getPoints(guess.col, guess.row, picked_color);
+                points += receivedPoints;
+                if (receivedPoints > 0)  {
+                    clueGiverPoints += 1;
+                }
+            }
+        } else {
+            clueGiver = playerId;
+        }
+        playerPoints[playerId] = {'points': points, 'isClueGiver':false};
+    }
+    if (clueGiver) {
+        playerPoints[clueGiver] = {'points': clueGiverPoints, 'isClueGiver':true};
+    }
+    return playerPoints;
 }
 
 /* ON LOAD */

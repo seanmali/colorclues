@@ -3,15 +3,22 @@
 <html>
 <head>
     <meta charset="utf-8"/>
-    <title>Game Rooms</title>
+    <title>Color Clues: Lobby</title>
+    {% load static %}
     {% load bootstrap5 %}
     {% bootstrap_css %}
     {% bootstrap_javascript %}
+    <link rel="stylesheet" href="{% static 'css/lobby.css' %}">
 </head>
 <body>
-    What game room would you like to enter?<br>
-    <input id="room-name-input" type="text" size="100"><br>
-    <input id="room-name-submit" type="button" value="Enter">
+    <div class="lobby-container">
+        <h1 class="colorCluesTitle">Color Clues!</h1>
+        <div class="gameRoomLabel">What game room would you like to enter?</div>
+        <div class="gameRoomInputBox">
+            <input id="room-name-input" type="text" size="25">
+            <input id="room-name-submit" type="button" value="Enter">
+        </div>
+    </div>
 
     <script>
         document.querySelector('#room-name-input').focus();
