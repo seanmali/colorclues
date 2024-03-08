@@ -27,6 +27,7 @@
                 <input id="clue-message-input" class="form-group" type="text">
                 <input id="clue-message-submit" class="btn btn-primary" placeholder="color clue" type="button" value="Send Clue">
             </div>
+            <div id="player-updates-label" style="display:none;">Waiting for players...</div>
             <div class="buttons-container">
                 <button id="drawCardButton" class="btn btn-info" type="button" style="display:none;">Draw a card</button>
                 <button id="confirmGuessButton" class="btn btn-primary" type="button" style="display:none;">Confirm Guess</button>
@@ -60,6 +61,21 @@
           <h3>Color Options</h3>
           <h6>Pick a color:</h6>
           <div id="colorOptionsContainer"></div>
+        </div>
+    </div>
+
+    <div id="endRoundModal" class="modal">
+        <div id="endRoundModalContent" class="modal-content">
+          <h3>End of Round!</h3>
+          <div id="endOfRoundColor"></div>
+          <div id="endOfRoundPointsReceived"></div>
+        </div>
+    </div>
+
+    <div id="morePlayersModal" class="modal">
+        <div id="morePlayersModalContent" class="modal-content">
+          <h3>Need More Players!</h3>
+          <h6>Must have at least 3 players to play.</h6>
         </div>
     </div>
   
