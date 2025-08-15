@@ -346,7 +346,7 @@ document.querySelector('#start-game-button').addEventListener('click', startGame
 function startGame() {
     if (player_list.length > 1) {
         nextTurn();
-    } else {
+    gameSocket.send(JSON.stringify({ type: "end_round" }));    } else {
         let morePlayersModal = document.getElementById('morePlayersModal');
         morePlayersModal.style.display = "block";
         setTimeout(function () {
@@ -541,3 +541,11 @@ function calculatePoints(players, picked_color) {
 /* ON LOAD */
 
 showPlayerInputModal();
+
+// Handle end_round from server
+gameSocket.addEventListener("message", function(e) {
+    const data = JSON.parse(e.data);
+    if (data.type === "end_round") {
+        document.getElementById("round-badge").textContent = "Round " + data.round;
+    }
+});
