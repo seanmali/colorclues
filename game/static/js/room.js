@@ -549,3 +549,87 @@ gameSocket.addEventListener("message", function(e) {
         document.getElementById("round-badge").textContent = "Round " + data.round;
     }
 });
+
+// ===== Rounds Helpers (appended) =====
+(function () {
+  function $id(id){ return document.getElementById(id); }
+
+  function ensureGameOverOverlay() {
+    if ($id('game-over-overlay')) return;
+    var div = document.createElement('div');
+    div.id = 'game-over-overlay';
+    div.style.position = 'fixed';
+    div.style.inset = '0';
+    div.style.background = 'rgba(0,0,0,0.6)';
+    div.style.display = 'flex';
+    div.style.alignItems = 'center';
+    div.style.justifyContent = 'center';
+    div.style.zIndex = '9999';
+    div.style.color = '#fff';
+    div.style.fontSize = '1.5rem';
+    div.innerHTML = '<div style="background:#222;padding:24px 32px;border-radius:8px;text-align:center;">Game Over<br/><button id="restart-ok" class="btn btn-light" style="margin-top:12px;">OK</button></div>';
+    document.body.appendChild(div);
+    var btn = $id('restart-ok');
+    if (btn) btn.addEventListener('click', function(){
+      div.parentNode.removeChild(div);
+      var sel = $id('rounds-select');
+      if (sel) sel.disabled = false; // unlock rounds after game ends
+      // Optional: show Start button again
+      var startBtn = document.querySelector('#start-game-button');
+      if (startBtn) startBtn.style.display = 'block';
+    });
+  }
+
+  function updateRoundBadge(round, total) {
+    var badge = $id('round-badge');
+    if (!badge) return;
+    if (typeof total === 'number') {
+      badge.textContent = 'Round ' + round + ' of ' + total;
+    } else {
+      badge.textContent = 'Round ' + round;
+    }
+  }
+
+  // Lock rounds selector on Start click
+  var startBtn = document.querySelector('#start-game-button');
+  if (startBtn) {
+    startBtn.addEventListener('click', function () {
+      var sel = $id('rounds-select');
+      if (sel) sel.disabled = true;
+    });
+  }
+
+  // Add a secondary message listener so we don't risk breaking existing onmessage
+  if (typeof gameSocket !== 'undefined' && gameSocket) {
+    gameSocket.addEventListener('message', function (e) {
+      try {
+        var data = JSON.parse(e.data || '{}');
+        var t = data.type;
+
+        if (t === 'round_state') {
+          // Server tells us current round + total; update badge
+          updateRoundBadge(data.round, data.num_rounds);
+        }
+
+        else if (t === 'all_guesses_received') {
+          // After end-of-round UI shows, advance server to next round
+          setTimeout(function () {
+            try {
+              if (gameSocket && gameSocket.readyState === 1) {
+                gameSocket.send(JSON.stringify({ type: 'end_round' }));
+              }
+            } catch (err) { console.error(err); }
+          }, 3500); // wait ~3.5s so players can see results
+        }
+
+        else if (t === 'game_over') {
+          ensureGameOverOverlay();
+          updateRoundBadge(1, null); // optional reset display
+        }
+      } catch (err) {
+        console.error('rounds handler error', err);
+      }
+    });
+  }
+})();
+ // ===== End Rounds Helpers =====
