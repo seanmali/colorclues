@@ -1,5 +1,6 @@
 const roomName = JSON.parse(document.getElementById('room-name').textContent);
 var scheme=(window.location.protocol=="https:")?"wss":"ws";
+var scheme=(window.location.protocol=="https:")?"wss":"ws";
 var gameSocket=new WebSocket(scheme+"://"+window.location.host+"/ws/game/"+roomName+"/");
 var cur_player = null;
 var player_turn = null;
