@@ -344,7 +344,7 @@ function updateChat(message) {
 document.querySelector('#start-game-button').addEventListener('click', startGame);
 
 function startGame() {
-    if (player_list.lenght > 2) {
+    if (player_list.length > 1) {
         nextTurn();
     } else {
         let morePlayersModal = document.getElementById('morePlayersModal');
