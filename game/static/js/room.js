@@ -541,3 +541,28 @@ function calculatePoints(players, picked_color) {
 /* ON LOAD */
 
 showPlayerInputModal();
+
+/* ---- Diagnostics & robust clue sender (classic) ---- */
+(function(){
+  try {
+    var btn = document.getElementById('clue-message-submit');
+    var input = document.getElementById('clue-message-input');
+    if (btn && input) {
+      btn.addEventListener('click', function (e) {
+        try {
+          if (e && typeof e.preventDefault === 'function') e.preventDefault();
+          var msg = (input.value || '').trim();
+          if (!msg) { console.log('[clue] empty message, skip'); return; }
+          if (typeof gameSocket === 'undefined' || !gameSocket || gameSocket.readyState !== 1) {
+            console.warn('[clue] socket not open'); return;
+          }
+          console.log('[clue] sending:', msg);
+          gameSocket.send(JSON.stringify({ type: 'clue_message', message: msg }));
+        } catch (err) { console.error('[clue] send error', err); }
+      }, { capture:false, passive:false });
+    } else {
+      console.warn('[clue] inputs not found');
+    }
+  } catch (err) { console.error('[clue] handler init error', err); }
+})();
+ /* ---- end diagnostics ---- */

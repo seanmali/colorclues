@@ -6,7 +6,49 @@ class GameConsumer(AsyncWebsocketConsumer):
     players = {}  # Dictionary to store player information
     p_turn = None
     pkd_color = None
+    async def receive(self, text_data):
+        """
+        Handle inbound messages from the client (classic branch diagnostics).
+        """
+        import json, traceback, sys
+        try:
+            data = json.loads(text_data or "{}")
+        except Exception:
+            data = {}
+        message_type = data.get("type")
+        try:
+            print(f"[WS] recv type={message_type} data_keys={list(data.keys())}", file=sys.stderr)
+        except Exception:
+            pass
 
+        try:
+            # Pass through existing classic handlers:
+            if message_type == "clue_message":
+                # broadcast to the room (avoid sending to specific/possibly closed channels)
+                try:
+                    await self.channel_layer.group_send(
+                        self.room_group_name,
+                        {"type": "clue_message", "message": data.get("message", "")}
+                    )
+                except Exception:
+                    traceback.print_exc()
+
+            elif message_type == "guess_message":
+                try:
+                    await self.channel_layer.group_send(
+                        self.room_group_name,
+                        {"type": "guess_message", "message": data.get("message", "")}
+                    )
+                except Exception:
+                    traceback.print_exc()
+
+            # Add other message types here as no-ops to avoid crashes in classic mode
+            else:
+                # ignore unknowns in classic branch
+                pass
+
+        except Exception:
+            traceback.print_exc()
     async def connect(self):
         self.room_name = self.scope["url_route"]["kwargs"]["room_name"]
         self.room_group_name = "game_%s" % self.room_name
