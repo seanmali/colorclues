@@ -24,8 +24,8 @@ class GameConsumer(AsyncWebsocketConsumer):
         try:
             # Pass through existing classic handlers:
             if message_type == "clue_message":
-            print("[DEBUG] recv clue_message room=" + str(self.room_name) + " msg=" + str(data.get("message","")))
-            print("[DEBUG] group_send clue_message -> " + str(self.room_group_name))
+                print("[DEBUG] recv clue_message room=" + str(self.room_name) + " msg=" + str(data.get("message","")))
+                print("[DEBUG] group_send clue_message -> " + str(self.room_group_name))
                 # broadcast to the room (avoid sending to specific/possibly closed channels)
                 try:
                     await self.channel_layer.group_send(
